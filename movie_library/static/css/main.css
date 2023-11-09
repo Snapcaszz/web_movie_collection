@@ -66,9 +66,64 @@ body {
   text-decoration: none;
 }
 
+.header__logo:hover{
+  color: var(--accent-colour);
+}
+
+.logo__name {
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 20px;
+}
+
 .logo__icon {
   width: 2.5rem;
   height: 2.5rem;
+}
+
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  max-width: 75rem;
+  margin: 0 auto;
+}
+
+.nav {
+  display: flex;
+}
+
+.nav__link {
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.nav__link-active {
+  background-color: var(--accent-colour);
+  color: var(--text-light);
+}
+
+.nav__link:not(:last-child) {
+  margin-right: 1rem;
+}
+
+.nav__link:hover {
+  margin-bottom: -3px;
+  border-bottom: var(--border);
+}
+
+.nav__item {
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.nav__icon {
+  width: 1em;
+  height: 1em;
 }
 
 /* Button styles that we'll share across our site */
