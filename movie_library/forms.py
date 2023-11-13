@@ -5,7 +5,7 @@ from wtforms.validators import InputRequired, NumberRange
 
 class MovieForm(FlaskForm):
     title = StringField("Title", validators=[InputRequired()])
-    director = StringField("director", validators=[InputRequired()])
+    director = StringField("Director", validators=[InputRequired()])
     year = IntegerField(
         "Year",
         validators=[
