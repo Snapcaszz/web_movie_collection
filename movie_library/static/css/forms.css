@@ -50,3 +50,14 @@
 .form__field:focus {
     border-bottom: var(--border);
 }
+
+.button--form {
+    margin: 2rem 0 0 auto;
+    padding: 0.75rem 3rem;
+    border: none;
+    background: var(--background-color);
+}
+
+.button--form:hover {
+    background: var(--background-color-hover);
+}
