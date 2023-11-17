@@ -1,4 +1,5 @@
 import uuid
+import datetime
 from flask import (
     current_app,
     Blueprint,
@@ -7,6 +8,7 @@ from flask import (
     request,
     session,
     url_for,
+    abort,
 )
 from movie_library.forms import MovieForm
 from dataclasses import asdict
@@ -22,12 +24,8 @@ pages = Blueprint(
 def index():
     movie_data = current_app.db.movie.find({})
     movies = [Movie(**movie) for movie in movie_data]
-    
-    return render_template(
-        "index.html",
-        title="Movies Watchlist",
-        movies_data=movies
-    )
+
+    return render_template("index.html", title="Movies Watchlist", movies_data=movies)
 
 
 @pages.route("/add", methods=["GET", "POST"])
@@ -60,3 +58,28 @@ def toggle_theme():
         session["theme"] = "dark"
 
     return redirect(request.args.get("current_page"))
+
+
+@pages.get("/movie/<string:_id>")
+def movie(_id: str):
+    movie_data = current_app.db.movie.find_one({"_id": _id})
+    if not movie_data:
+        abort(404)
+    movie = Movie(**movie_data)
+    return render_template("movie_details.html", movie=movie)
+
+
+@pages.get("/movie/<string:_id>/rate")
+def rate_movie(_id):
+    rating = int(request.args.get("rating"))
+    current_app.db.movie.update_one({"_id": _id}, {"$set": {"rating": rating}})
+
+    return redirect(url_for(".movie", _id=_id))
+
+
+@pages.get("/movie/<string:_id>/watch")
+def watch_today(_id):
+    current_app.db.movie.update_one(
+        {"_id": _id}, {"$set": {"last_watched": datetime.datetime.today()}}
+    )
+    return redirect(url_for(".movie", _id=_id))
