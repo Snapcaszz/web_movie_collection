@@ -61,3 +61,12 @@
 .button--form:hover {
     background: var(--background-color-hover);
 }
+
+.form__link {
+    text-decoration: none;
+    color: var(--accent-colour);
+}
+
+.form__link:hover {
+    text-decoration: underline;
+}

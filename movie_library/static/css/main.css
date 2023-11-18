@@ -127,7 +127,7 @@ body {
   text-decoration: none;
 }
 
-.nav__link-active {
+.nav__link--active {
   background-color: var(--accent-colour);
   color: var(--text-light);
 }

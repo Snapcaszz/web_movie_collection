@@ -9,10 +9,12 @@ from flask import (
     session,
     url_for,
     abort,
+    flash
 )
-from movie_library.forms import MovieForm
+from movie_library.forms import MovieForm, ExtendedMovieForm, RegisterForm
 from dataclasses import asdict
-from movie_library.models import Movie
+from movie_library.models import Movie, User
+from passlib.hash import pbkdf2_sha256
 
 
 pages = Blueprint(
@@ -48,6 +50,28 @@ def add_movie():
         "new_movie.html", title="Movie Watchlist - Add Movie", form=form
     )
 
+@pages.route("/edit/<string:_id>", methods=["GET", "POST"])
+def edit_movie(_id: str):
+    movie_data = current_app.db.movie.find_one({"_id": _id})
+    if not movie_data:
+        abort(404)
+    movie = Movie(**movie_data)
+    form = ExtendedMovieForm(obj=movie)
+    
+    if form.validate_on_submit():
+        movie.title = form.title.data
+        movie.description = form.description.data
+        movie.year = form.year.data
+        movie.cast = form.cast.data
+        movie.series = form.series.data
+        movie.video_link = form.video_link.data
+        
+        current_app.db.movie.update_one({"_id": movie._id}, {"$set": asdict(movie)})
+        
+        return redirect(url_for('.movie', _id=movie._id))
+    
+    return render_template('movie_form.html', movie=movie, form=form)
+
 
 @pages.get("/toggle-theme")
 def toggle_theme():
@@ -70,7 +94,7 @@ def movie(_id: str):
 
 
 @pages.get("/movie/<string:_id>/rate")
-def rate_movie(_id):
+def rate_movie(_id: str):
     rating = int(request.args.get("rating"))
     current_app.db.movie.update_one({"_id": _id}, {"$set": {"rating": rating}})
 
@@ -78,8 +102,25 @@ def rate_movie(_id):
 
 
 @pages.get("/movie/<string:_id>/watch")
-def watch_today(_id):
+def watch_today(_id: str):
     current_app.db.movie.update_one(
         {"_id": _id}, {"$set": {"last_watched": datetime.datetime.today()}}
     )
     return redirect(url_for(".movie", _id=_id))
+
+@pages.route("/register", methods=["GET", "POST"])
+def register():
+    if session.get("email"):
+        return redirect(url_for(".index"))
+    
+    form = RegisterForm()
+    if form.validate_on_submit():
+        user = User(
+            _id=uuid.uuid4().hex,
+            email=form.email.data,
+            password=pbkdf2_sha256.hash(form.password.data)
+        )
+    
+        current_app.db.user.insert_one(asdict(user))
+        flash("User registered successfully", "success")
+    return render_template("register.html", form=form, title="Movie Watchlist - Register")
